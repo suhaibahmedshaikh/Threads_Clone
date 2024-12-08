@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      select: false,
     },
     bio: {
       type: String,
@@ -45,7 +44,7 @@ const userSchema = new mongoose.Schema(
         ref: "post",
       },
     ],
-    repies: [
+    replies: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "comment",
