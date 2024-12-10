@@ -111,4 +111,36 @@ const signin = async (req, res) => {
   }
 };
 
-module.exports = { signup, signin };
+const getUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        msg: "id is required",
+      });
+    }
+
+    const user = await User.findById(id)
+      .select("-password")
+      .populate("followers")
+      .populate({
+        path: "threads",
+        populate: [{ path: "likes" }, { path: "comments" }, { path: "admin" }],
+      })
+      .populate({ path: "replies", populate: { path: "admin" } })
+      .populate({
+        path: "repost",
+        populate: [{ path: "likes" }, { path: "comments" }, { path: "admin" }],
+      });
+
+    res.status(200).json({ msg: "user details fetched !!" }, user);
+  } catch (err) {
+    res.status(400).json({
+      msg: "Error in get user details !",
+      err: err.message,
+    });
+  }
+};
+
+module.exports = { signup, signin, getUserDetails };
