@@ -1,6 +1,7 @@
 // imports
 const express = require("express");
 const app = express();
+const cookieParser = require("cookie-parser");
 const { PORT } = require("./config/envConfig");
 const connectDB = require("./config/dbConfig");
 const userRouter = require("./routes/user-routes");
@@ -11,6 +12,7 @@ connectDB();
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // routes
 app.use("/api/v1/user", userRouter);
