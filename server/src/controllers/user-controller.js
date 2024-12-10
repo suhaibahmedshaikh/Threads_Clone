@@ -45,7 +45,7 @@ const signup = async (req, res) => {
     }
 
     res.status(201).json({
-      msg: `User registered successfully, Welcome ${userExits?.firstName}`,
+      msg: `User registered successfully, Welcome ${newUser?.firstName}`,
     });
   } catch (err) {
     res.status(400).json({
@@ -143,4 +143,52 @@ const getUserDetails = async (req, res) => {
   }
 };
 
-module.exports = { signup, signin, getUserDetails };
+const followUser = async (req, res) => {
+  try {
+    console.log(req.user._id);
+
+    console.log(req.params.id);
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        msg: "id is required",
+      });
+    }
+
+    const isUserExits = await User.findById(id);
+
+    if (!isUserExits) {
+      return res.status(400).json({
+        msg: "user doesnt extis",
+      });
+    }
+
+    if (isUserExits.followers.includes(req.user._id)) {
+      await User.findByIdAndUpdate(
+        isUserExits._id,
+        {
+          $pull: { followers: req.user._id },
+        },
+        { new: true }
+      );
+      return res.status(201).json({
+        msg: `unfollowed ${isUserExits.firstName}`,
+      });
+    } else {
+      await User.findByIdAndUpdate(
+        isUserExits._id,
+        { $push: { followers: req.user._id } },
+        { new: true }
+      );
+      return res.status(201).json({
+        msg: `following ${isUserExits.firstName}`,
+      });
+    }
+  } catch (err) {
+    res.status(400).json({ msg: "error in follow User", err: err.message });
+  }
+};
+
+module.exports = { signup, signin, getUserDetails, followUser };
