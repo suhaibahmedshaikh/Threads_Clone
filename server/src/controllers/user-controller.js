@@ -304,6 +304,26 @@ const searchUser = async (req, res) => {
   }
 };
 
+const signout = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      maxAge: Date.now(),
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
+
+    res.status(201).json({
+      msg: "user signed out successfully",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      msg: "Error in logout controller",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -311,4 +331,5 @@ module.exports = {
   followUser,
   updateProfile,
   searchUser,
+  signout,
 };
