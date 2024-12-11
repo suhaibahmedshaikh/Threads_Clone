@@ -281,4 +281,34 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { signup, signin, getUserDetails, followUser, updateProfile };
+const searchUser = async (req, res) => {
+  try {
+    const { query } = req.params;
+
+    const users = await User.find({
+      $or: [
+        { firstName: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ],
+    }).select("-password");
+
+    res.status(200).json({
+      msg: "User found",
+      users,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      msg: "error in search user controller",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = {
+  signup,
+  signin,
+  getUserDetails,
+  followUser,
+  updateProfile,
+  searchUser,
+};

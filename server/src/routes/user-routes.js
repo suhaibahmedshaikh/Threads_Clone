@@ -8,6 +8,7 @@ const {
   getUserDetails,
   followUser,
   updateProfile,
+  searchUser,
 } = require("../controllers/user-controller");
 const auth = require("../middleware/auth");
 
@@ -16,5 +17,6 @@ router.post("/signin", signin);
 router.get("/profile/:id", auth, getUserDetails);
 router.put("/follow/:id", auth, followUser);
 router.put("/profile/update", auth, updateProfile);
+router.get("/search/:query", auth, searchUser);
 
 module.exports = router;
