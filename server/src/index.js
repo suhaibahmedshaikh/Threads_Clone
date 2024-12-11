@@ -18,7 +18,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
-src/index.jssrc/index.js
+
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
