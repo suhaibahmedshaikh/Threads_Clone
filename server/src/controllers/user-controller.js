@@ -2,6 +2,8 @@ const User = require("../models/user-model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/envConfig");
+const cloudinary = require("../config/cloudinaryConfig");
+const formidable = require("formidable");
 
 const signup = async (req, res) => {
   try {
@@ -191,4 +193,92 @@ const followUser = async (req, res) => {
   }
 };
 
-module.exports = { signup, signin, getUserDetails, followUser };
+const updateProfile = async (req, res) => {
+  try {
+    console.log(req);
+
+    const isUserExits = await User.findById(req.user._id);
+
+    if (!isUserExits) {
+      return res.status(400).json({
+        msg: "no user found !",
+      });
+    }
+
+    const form = new formidable.IncomingForm();
+    form.parse(req, async (err, fields, files) => {
+      if (err) {
+        return res.status(400).json({
+          msg: "error in formidable",
+          err: err,
+        });
+      }
+
+      try {
+        if (fields.text) {
+          const bioText = Array.isArray(fields.text)
+            ? fields.text.join("")
+            : fields.text;
+          await User.findByIdAndUpdate(
+            req.user._id,
+            {
+              bio: bioText,
+            },
+            { new: true }
+          );
+        }
+
+        console.log("files received", files);
+        console.log("files received", files.media[0]);
+
+        if (
+          files.media &&
+          Array.isArray(files.media) &&
+          files.media.length > 0
+        ) {
+          const mediaFiles = files.media[0];
+          if (mediaFiles.filepath) {
+            if (isUserExits.public_id) {
+              await cloudinary.uploader.destroy(isUserExits.public_id);
+            }
+          }
+          const uploadedImage = await cloudinary.uploader.upload(
+            mediaFiles.filepath,
+            { folder: "Threads_Clone/Profile" }
+          );
+
+          console.log(uploadedImage);
+
+          if (!uploadedImage) {
+            return res.status(400).json({
+              msg: "error while uploading image",
+            });
+          }
+          await User.findByIdAndUpdate(
+            req.user._id,
+            {
+              profilePic: uploadedImage.secure_url,
+              public_id: uploadedImage.public_id,
+            },
+            { new: true }
+          );
+        }
+        res.status(201).json({
+          msg: "profile updated successfully",
+        });
+      } catch (error) {
+        return res.status(400).json({
+          msg: "error inside form parse",
+          error: error.message,
+        });
+      }
+    });
+  } catch (error) {
+    return res.status(400).json({
+      msg: "error in update profile controller",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { signup, signin, getUserDetails, followUser, updateProfile };
