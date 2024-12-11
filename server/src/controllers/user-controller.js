@@ -324,6 +324,18 @@ const signout = async (req, res) => {
   }
 };
 
+const myInfo = async (req, res) => {
+  try {
+    res.status(200).json({
+      me: req.user,
+    });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ msg: "Error in myInfo Controller", error: error.message });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -332,4 +344,5 @@ module.exports = {
   updateProfile,
   searchUser,
   signout,
+  myInfo,
 };

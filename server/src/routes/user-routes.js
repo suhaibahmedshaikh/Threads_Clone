@@ -10,6 +10,7 @@ const {
   updateProfile,
   searchUser,
   signout,
+  myInfo,
 } = require("../controllers/user-controller");
 const auth = require("../middleware/auth");
 
@@ -17,6 +18,7 @@ router.post("/signup", signup);
 router.post("/signin", signin);
 
 router.post("/signout", auth, signout);
+router.get("/me", auth, myInfo);
 router.get("/profile/:id", auth, getUserDetails);
 router.put("/follow/:id", auth, followUser);
 router.put("/profile/update", auth, updateProfile);
