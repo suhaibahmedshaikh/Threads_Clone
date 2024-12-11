@@ -3,6 +3,7 @@ const Post = require("../models/post-model");
 const Comment = require("../models/comment-model");
 const cloudinary = require("../config/cloudinaryConfig");
 const formidable = require("formidable");
+const { model } = require("mongoose");
 
 const addPost = async (req, res) => {
   try {
@@ -68,4 +69,33 @@ const addPost = async (req, res) => {
   }
 };
 
-module.exports = { addPost };
+const getAllPost = async (req, res) => {
+  try {
+    const { page } = req.query;
+    let pageNumber = page;
+
+    if (!page || page === undefined) {
+      pageNumber = 1;
+    }
+
+    const posts = await Post.find({})
+      .sort({ createdAt: -1 })
+      .skip((pageNumber - 1) * 3)
+      .limit(3)
+      .populate("admin")
+      .populate("likes")
+      .populate({
+        path: "comments",
+        populate: { path: "admin", model: "user" },
+      });
+
+    res.status(200).json({ msg: "All posts fetched", posts });
+  } catch (error) {
+    return res.status(400).json({
+      msg: "Error in get all post controller",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { addPost, getAllPost };
