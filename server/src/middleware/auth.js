@@ -22,10 +22,10 @@ const auth = async (req, res, next) => {
 
     const user = await User.findById(decodedToken.token)
       .select("-password")
-      .populate("followers");
-    // .populate("threads")
-    // .populate("replies")
-    // .populate("reposts");
+      .populate("followers")
+      .populate("threads")
+      .populate("replies")
+      .populate("reposts");
 
     if (!user) {
       return res.status(400).json({
